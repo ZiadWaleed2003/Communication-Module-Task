@@ -1,4 +1,6 @@
 import time
+import json
+import os
 from typing import Dict, List
 from dataclasses import dataclass, field
 
@@ -47,7 +49,7 @@ class Simulation:
             for config in agent_configs
         ]
     
-    def run_simulation(self, problem_data: Dict, max_steps: int = 6) -> Dict:
+    def run_simulation(self, problem_data: Dict, max_steps: int = 3) -> Dict:
         """
         Run a single simulation scenario
         """
@@ -97,6 +99,47 @@ class Simulation:
             "final_state": self.blackboard.get_conversation_history(),
             "agents_participated": len(self.agents)
         }
+    
+    def save_results_to_json(self, results: List[Dict]) -> None:
+        """
+        Save simulation results to JSON files in results folder
+        Each problem gets its own JSON file with problem ID and solution
+        """
+        # Create results directory if it doesn't exist
+        results_dir = "results"
+        if not os.path.exists(results_dir):
+            os.makedirs(results_dir)
+        
+        for result in results:
+            # Extract solution from the final conversation state
+            solution = self._extract_solution_from_conversation(result['final_state'])
+            
+            # Create result data structure
+            result_data = {
+                "problem_id": result['problem_id'],
+                "solution": solution,
+                "metadata": {
+                    "total_messages": result['total_messages'],
+                    "agents_participated": result['agents_participated'],
+                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+                }
+            }
+            
+            # Save to JSON file
+            filename = f"{result['problem_id']}_solution.json"
+            filepath = os.path.join(results_dir, filename)
+            
+            with open(filepath, 'w', encoding='utf-8') as f:
+                json.dump(result_data, f, indent=2, ensure_ascii=False)
+            
+            print(f"💾 Saved solution for {result['problem_id']} to {filepath}")
+    
+    def _extract_solution_from_conversation(self, conversation_history: str) -> str:
+        """
+        Extract the collaborative solution from the conversation history
+        """
+        # For now, we just gonna return the full conversation as the solution
+        return conversation_history
     
     def run_all_simulations(self) -> List[Dict]:
         """
@@ -154,6 +197,9 @@ def main():
     
     # Run all simulations
     results = simulation.run_all_simulations()
+    
+    # Save results to JSON files
+    simulation.save_results_to_json(results)
     
     # Print final summary
     simulation.print_final_summary(results)
