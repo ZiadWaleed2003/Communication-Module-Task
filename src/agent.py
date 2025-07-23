@@ -1,5 +1,5 @@
-from CommunicationModule.blackboard import Blackboard
-from clients import get_llm_client
+from src.CommunicationModule.blackboard import Blackboard
+from src.clients import get_llm_client , get_llm
 
 
 class Agent:
@@ -11,7 +11,9 @@ class Agent:
         self.role = role
         self.system_prompt = system_prompt
         self.step_count = 0
-        self.llm = get_llm_client()
+        self.client = get_llm_client()
+        self.model  = get_llm()
+
     
     def generate_response(self, problem: str, conversation_history: str) -> str:
         """
@@ -19,12 +21,13 @@ class Agent:
         For demo purposes, we'll simulate LLM responses
         """
 
-        response = self.llm.client.chat.completions.create(
-            model="gpt-4",
+        response = self.client.chat.completions.create(
+            model=self.model,
             messages=[
                 {"role": "system", "content": self.system_prompt},
                 {"role": "user", "content": f"Problem: {problem}\n\n{conversation_history}\n\nProvide your response:"}
-            ]
+            ],
+            temperature=0
         )
         return response.choices[0].message.content
         

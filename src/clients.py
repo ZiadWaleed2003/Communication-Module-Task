@@ -1,8 +1,10 @@
 import openai
 import os
-
+from dotenv import load_dotenv
 
 def get_llm_client():
+    
+    load_dotenv()
 
     """"a simple function returning an OpenAI client"""
 

@@ -7,7 +7,7 @@ from src.agent import Agent
 
 from input_data.data import load_sample_datasets
 
-class CollaBArenSimulation:
+class Simulation:
     """
     Main simulation class that orchestrates the multi-agent collaboration
     """
@@ -147,7 +147,7 @@ def main():
     Main function to run the CollaB Arena simulation
     """
     # Create simulation instance
-    simulation = CollaBArenSimulation()
+    simulation = Simulation()
     
     # Setup agent team
     simulation.setup_agents()
